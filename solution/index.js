@@ -56,11 +56,11 @@ function addTask(event) {
 
   // I select the list within the section and append a list element
   const list = document.querySelector(`#${section.id} > ul`)
-  list.append(createListElement('li', input.value, 'task'))
+  list.prepend(createListElement('li', input.value, 'task'))
 
   
   // I update the local storage
-  listStorage[section.id].push(input.value)
+  listStorage[section.id].unshift(input.value)
   localStorage.setItem('tasks', JSON.stringify(listStorage))
 
   // I clear the input
@@ -137,19 +137,24 @@ function taskLocationChange(event) {
 
     // change the DOM
     hoveringOver.remove()
-    list.appendChild(hoveringOver)
+    list.prepend(hoveringOver)
    
 
 }
 
 function searchFilter() {
-    let lists = document.querySelectorAll(`#tasks-container > section > ul`)
-    for (let list of lists) {
+
+    let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
+
+    // I unhide all the elements so they do stay hidden from the search before
+    for (let list of taskLists) {
         [...list.children].forEach(elem => elem.hidden = false)
     }
-    for (let list of lists) {
+
+    // I hide all the elements that do not contain the text in the search bar
+    for (let list of taskLists) {
         [...list.children].forEach(elem => {
-            if (!(elem.textContent.includes(search.value))) {
+            if (!(elem.textContent.includes(search.value.toLowerCase()))) {
                 elem.hidden = true;
             }
         })
@@ -174,6 +179,6 @@ function setLocalStorage(element, to) {
     const positionInList = [...element.parentNode.children].indexOf(element)
 
     listStorage[element.closest('section').id].splice(positionInList, 1);
-    listStorage[to].push(element.textContent)
+    listStorage[to].unshift(element.textContent)
     localStorage.setItem('tasks', JSON.stringify(listStorage))
 }
