@@ -18,6 +18,7 @@ tasksContainer.ondblclick = editTask
 tasksContainer.onmouseover = hovering
 document.addEventListener('keydown', altKey)
 document.addEventListener('keyup', altKey)
+search.oninput = searchFilter 
 
 
 /* Local Storage Building DOM*/
@@ -140,6 +141,21 @@ function taskLocationChange(event) {
    
 
 }
+
+function searchFilter() {
+    let lists = document.querySelectorAll(`#tasks-container > section > ul`)
+    for (let list of lists) {
+        [...list.children].forEach(elem => elem.hidden = false)
+    }
+    for (let list of lists) {
+        [...list.children].forEach(elem => {
+            if (!(elem.textContent.includes(search.value))) {
+                elem.hidden = true;
+            }
+        })
+    }
+}
+
 function createListElement(tagname, text, cls) {
   const newListItem = document.createElement(tagname)
   if (tagname === 'input') {
