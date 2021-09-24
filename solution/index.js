@@ -1,21 +1,26 @@
 'use strict'
 
-/* DOM Events */
-const tasksContainer = document.getElementById('tasks-container') //global variable that never changes
-tasksContainer.onclick = addTask
-tasksContainer.ondblclick = editText
-tasksContainer.onmouseover = changeLocation
+// global shorthand for DOM Element I reference through out my code.
+const tasksContainer = document.getElementById('tasks-container')
 
-// I initialize a storage object
+// I initialize a global storage object
 let listStorage = {
   todo: [],
   'in-progress': [],
   done: [],
 }
 
-/* Local Storage */
 getTasksFromLocalStorage()
 
+/* DOM Events */
+tasksContainer.onclick = addTask
+tasksContainer.ondblclick = editTask
+tasksContainer.onmouseover = hovering
+document.addEventListener('keydown', altKey)
+document.addEventListener('keyup', altKey)
+
+
+/* Local Storage Building DOM*/
 function getTasksFromLocalStorage() {
   const localStorageLists = localStorage.getItem('tasks')
 
@@ -61,7 +66,7 @@ function addTask(event) {
   input.value = ''
 }
 
-function editText(event){
+function editTask(event){
     // function only effects list elements
     const listEl = event.target;
     if (listEl.tagName !== 'LI') return
@@ -89,19 +94,16 @@ function editText(event){
 
 }
 
-function changeLocation(event) {
-    const listEl = event.target
-    if (listEl.tagName !== 'LI') return
-    console.log(listEl)
-    tasksContainer.currentEl = listEl
-    document.addEventListener('keydown', altKey)
-    document.addEventListener('keyup', altKey)
+// This function saves the list element I'm hovering over to the DOM
+function hovering(event) {
+    if (event.target.tagName !== 'LI') return
+
+    // The event target is saved in the DOM
+    tasksContainer.hoveringOver = event.target
     
-    listEl.onmouseout = () => {
-        console.log('5')
-        tasksContainer.currentEl = null
-        document.removeEventListener('keyup', altKey)
-        document.removeEventListener('keydown', altKey)
+    event.target.onmouseout = () => {
+        // The event target is no longer saved
+        tasksContainer.hoveringOver = null
     }
 }
 
@@ -109,28 +111,32 @@ function altKey(event) {
     if (event.key !== 'Alt') return
     if (event.type === 'keydown') {
         event.preventDefault()
-        document.addEventListener('keydown', move)
+        document.addEventListener('keydown', taskLocationChange)
     }
     if (event.type === 'keyup') {
-        document.removeEventListener('keydown', move)
+        document.removeEventListener('keydown', taskLocationChange)
     }
 }
 
-function move(event) {
-    console.log(tasksContainer.currentEl)
-    if (['1', '2', '3'].indexOf(event.key) === -1 || !tasksContainer.currentEl) return;
+function taskLocationChange(event) {
+    const hoveringOver = tasksContainer.hoveringOver
+
+    // the event only performs a task for keys 1, 2, 3.
+    // And only if the mouse is hovering over a list element.
+    if (['1', '2', '3'].indexOf(event.key) === -1 || !hoveringOver) return
+
+    // chooses a DOM list to transfer to based on the key that was pressed
     const lists = ['todo', 'in-progress', 'done']
     const list = tasksContainer.querySelector(`#${lists[event.key-1]} > ul`)
-    if (list.contains(tasksContainer.currentEl)) return
-    
-    // local storage
-    const positionInList = [...tasksContainer.currentEl.parentNode.children].indexOf(tasksContainer.currentEl)
-    listStorage[tasksContainer.currentEl.closest('section').id].splice(positionInList, 1);
-    listStorage[lists[event.key-1]].push(tasksContainer.currentEl.textContent)
-    localStorage.setItem('tasks', JSON.stringify(listStorage))
 
-    tasksContainer.currentEl.remove()
-    list.appendChild(tasksContainer.currentEl)
+    // if the element is already inside the list the function does nothing.
+    if (list.contains(hoveringOver)) return
+
+    setLocalStorage(hoveringOver, lists[event.key-1])
+
+    // change the DOM
+    hoveringOver.remove()
+    list.appendChild(hoveringOver)
    
 
 }
@@ -144,4 +150,14 @@ function createListElement(tagname, text, cls) {
   }
   newListItem.classList.add(cls)
   return newListItem
+}
+
+function setLocalStorage(element, to) {
+
+    // finds the position in list using its placement in the DOM
+    const positionInList = [...element.parentNode.children].indexOf(element)
+
+    listStorage[element.closest('section').id].splice(positionInList, 1);
+    listStorage[to].push(element.textContent)
+    localStorage.setItem('tasks', JSON.stringify(listStorage))
 }
