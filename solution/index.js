@@ -4,6 +4,7 @@
 const tasksContainer = document.getElementById('tasks-container') //global variable that never changes
 tasksContainer.onclick = addTask
 tasksContainer.ondblclick = editText
+tasksContainer.onmouseover = changeLocation
 
 // I initialize a storage object
 let listStorage = {
@@ -88,6 +89,59 @@ function editText(event){
 
 }
 
+function changeLocation(event) {
+    const listEl = event.target
+    if (listEl.tagName !== 'LI') return
+    console.log(listEl)
+    tasksContainer.currentEl = listEl
+    document.addEventListener('keydown', altKey)
+    document.addEventListener('keyup', altKey)
+    
+    listEl.onmouseout = () => {
+        console.log('5')
+        document.removeEventListener('keyup', altKey)
+        document.removeEventListener('keydown', altKey)
+    }
+}
+
+function altKey(event) {
+    if (event.key !== 'Alt') return
+    if (event.type === 'keydown') {
+        event.preventDefault()
+        document.addEventListener('keydown', move)
+    }
+    if (event.type === 'keyup') {
+        document.removeEventListener('keydown', move)
+    }
+}
+
+function move(event) {
+    if (['1', '2', '3'].indexOf(event.key) === -1) return;
+    const lists = ['todo', 'in-progress', 'done']
+    const list = tasksContainer.querySelector(`#${lists[event.key-1]} > ul`)
+    if (list.contains(tasksContainer.currentEl)) return
+    tasksContainer.currentEl.remove()
+    list.appendChild(tasksContainer.currentEl)
+   
+
+    
+    // if (event.key === '1') {
+    //     console.log('changed1')
+    //     if (document.querySelector("#todo > ul").contains(tasksContainer.currentEl)) return
+    //     tasksContainer.currentEl.remove()
+    //     document.querySelector("#todo > ul").appendChild(tasksContainer.currentEl)
+    // }
+    // if (event.key === '2') {
+    //     console.log('changed2')
+    //     tasksContainer.currentEl.remove()
+    //     document.querySelector("#in-progress > ul").appendChild(tasksContainer.currentEl)
+    // }
+    // if (event.key === '3') {
+    //     console.log('changed3')
+    //     tasksContainer.currentEl.remove()
+    //     document.querySelector("#done > ul").appendChild(tasksContainer.currentEl)
+    // }
+}
 function createListElement(tagname, text, cls) {
   const newListItem = document.createElement(tagname)
   if (tagname === 'input') {
