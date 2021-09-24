@@ -99,6 +99,7 @@ function changeLocation(event) {
     
     listEl.onmouseout = () => {
         console.log('5')
+        tasksContainer.currentEl = null
         document.removeEventListener('keyup', altKey)
         document.removeEventListener('keydown', altKey)
     }
@@ -116,31 +117,22 @@ function altKey(event) {
 }
 
 function move(event) {
-    if (['1', '2', '3'].indexOf(event.key) === -1) return;
+    console.log(tasksContainer.currentEl)
+    if (['1', '2', '3'].indexOf(event.key) === -1 || !tasksContainer.currentEl) return;
     const lists = ['todo', 'in-progress', 'done']
     const list = tasksContainer.querySelector(`#${lists[event.key-1]} > ul`)
     if (list.contains(tasksContainer.currentEl)) return
+    
+    // local storage
+    const positionInList = [...tasksContainer.currentEl.parentNode.children].indexOf(tasksContainer.currentEl)
+    listStorage[tasksContainer.currentEl.closest('section').id].splice(positionInList, 1);
+    listStorage[lists[event.key-1]].push(tasksContainer.currentEl.textContent)
+    localStorage.setItem('tasks', JSON.stringify(listStorage))
+
     tasksContainer.currentEl.remove()
     list.appendChild(tasksContainer.currentEl)
    
 
-    
-    // if (event.key === '1') {
-    //     console.log('changed1')
-    //     if (document.querySelector("#todo > ul").contains(tasksContainer.currentEl)) return
-    //     tasksContainer.currentEl.remove()
-    //     document.querySelector("#todo > ul").appendChild(tasksContainer.currentEl)
-    // }
-    // if (event.key === '2') {
-    //     console.log('changed2')
-    //     tasksContainer.currentEl.remove()
-    //     document.querySelector("#in-progress > ul").appendChild(tasksContainer.currentEl)
-    // }
-    // if (event.key === '3') {
-    //     console.log('changed3')
-    //     tasksContainer.currentEl.remove()
-    //     document.querySelector("#done > ul").appendChild(tasksContainer.currentEl)
-    // }
 }
 function createListElement(tagname, text, cls) {
   const newListItem = document.createElement(tagname)
