@@ -1,5 +1,48 @@
+body {
+  margin: 0;
+}
+header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  justify-content: flex-end;
+  align-items: center;
+  border-bottom: solid 4px cornsilk;
+  /* height: 15% */
+}
+#page-title {
+  margin-right: auto;
+}
+#submit-add-to-do {
+    position: sticky;
+    bottom: 3vh;
+    background-color: crimson;
+}
+#tasks-container {
+  /* margin-top: 10%; */
+  /* padding-top: 15%; */
+  /* width: 100%; */
+  display: flex;
+  justify-content: space-evenly;
+}
+#tasks-container section {
+  width: 26.66vw;
+}
+#tasks-container h2 {
+text-align: center;
+}
+#tasks-container section ul {
+    padding-inline-start: 0;
+}
 .task {
-  width: 200px;
+  /* height: 300px; */
+  width: 100%;
+  padding-inline-start: 0px;
+  padding-left: 0 !important;
+  list-style-type: none;
+  word-wrap: break-word;
 }
 .result-loading {
   position: fixed;

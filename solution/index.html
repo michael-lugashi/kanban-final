@@ -1,44 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="./index.js" defer></script>
     <link rel="stylesheet" href="./styles.css" />
     <title>Tasks manager</title>
-</head>
-<body>
-    <h1 id="page-title">Task Manager</h1>
-    <input id="search" type="text" placeholder="search">
-    <div id="btnContainer">
+  </head>
+  <body>
+    <header>
+      <h1 id="page-title">Task Manager</h1>
+      <input id="search" type="text" placeholder="search" />
+      <div id="btnContainer">
         <button id="load-btn">load</button>
         <button id="save-btn">save</button>
-    </div>
+      </div>
+    </header>
     <div id="tasks-container">
-        <section id="todo">
-            <h2>To Do</h2>
-            <ul class="to-do-tasks">
-            </ul>
-            <input type="text" id="add-to-do-task">
-            <button id="submit-add-to-do">Submit</button>
-        </section>
+      <section id="todo">
+        <h2>To Do</h2>
+        <ul class="to-do-tasks"></ul>
+        <input type="text" id="add-to-do-task" />
+        <button id="submit-add-to-do">Add</button>
+      </section>
 
-        <section id="in-progress">
-            <h2>In Progress</h2>
-            <ul class="in-progress-tasks">
-            </ul>
-            <input type="text" id="add-in-progress-task">
-            <button id="submit-add-in-progress">Submit</button>
-        </section>
-        
-        <section id="done">
-            <h2>Completed</h2>
-            <ul class="done-tasks">
-            </ul>
-            <input type="text" id="add-done-task">
-            <button id="submit-add-done">Submit</button>
-        </section>
+      <section id="in-progress">
+        <h2>In Progress</h2>
+        <ul class="in-progress-tasks"></ul>
+        <input type="text" id="add-in-progress-task" />
+        <button id="submit-add-in-progress">Add</button>
+      </section>
+
+      <section id="done">
+        <h2>Completed</h2>
+        <ul class="done-tasks"></ul>
+        <input type="text" id="add-done-task" />
+        <button id="submit-add-done">Add</button>
+      </section>
     </div>
-</body>
+  </body>
 </html>
