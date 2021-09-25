@@ -5,9 +5,9 @@ const tasksContainer = document.getElementById('tasks-container')
 
 // I initialize a global storage object
 let listStorage = {
-  todo: [],
-  'in-progress': [],
-  done: [],
+    todo: [],
+    'in-progress': [],
+    done: [],
 }
 
 getTasksFromLocalStorage()
@@ -18,20 +18,48 @@ tasksContainer.ondblclick = editTask
 tasksContainer.onmouseover = hovering
 document.addEventListener('keydown', altKey)
 document.addEventListener('keyup', altKey)
-search.oninput = searchFilter 
+search.oninput = searchFilter
+btnContainer.onclick = loadOrSave
+// tasksContainer.onmousedown = dragAndDropTask
+
+function loadOrSave(event) {
+    if (event.target.id === 'load-btn') loadData()
+    if (event.target.id === 'save-btn') saveData()
+}
 
 
+async function saveData() {
+    await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc', {
+        method: 'PUT',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({tasks: listStorage}),
+        })
+}
+
+
+async function loadData() {
+    const load = await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc')
+    let {tasks} =  await load.json()
+    listStorage = tasks
+    localStorage.setItem('tasks', JSON.stringify(listStorage))
+
+    // I just reload the page letting the local storage build the page again
+    location.reload()
+}
 /* Local Storage Building DOM*/
 function getTasksFromLocalStorage() {
-  const localStorageLists = localStorage.getItem('tasks')
+    const localStorageLists = localStorage.getItem('tasks')
 
-  if (localStorageLists) {
+    if (localStorageLists) {
     // I make the storage object equal to local storage if local storage has values
     listStorage = JSON.parse(localStorageLists)
 
     // I place all the data from local storage into the DOM
     for (const list in listStorage) {
-      const currentList = tasksContainer.querySelector(`#${list} > ul`)
+        const currentList = tasksContainer.querySelector(`#${list} > ul`)
       listStorage[list].forEach((listItemText) => {
         currentList.append(createListElement('li', listItemText, 'task'))
       })
@@ -52,19 +80,19 @@ function addTask(event) {
   if (!input.value) {
     alert(`You can't submit an empty task`)
     return
-  }
+}
 
-  // I select the list within the section and append a list element
-  const list = document.querySelector(`#${section.id} > ul`)
-  list.prepend(createListElement('li', input.value, 'task'))
+// I select the list within the section and append a list element
+const list = document.querySelector(`#${section.id} > ul`)
+list.prepend(createListElement('li', input.value, 'task'))
 
-  
-  // I update the local storage
-  listStorage[section.id].unshift(input.value)
-  localStorage.setItem('tasks', JSON.stringify(listStorage))
 
-  // I clear the input
-  input.value = ''
+// I update the local storage
+listStorage[section.id].unshift(input.value)
+localStorage.setItem('tasks', JSON.stringify(listStorage))
+
+// I clear the input
+input.value = ''
 }
 
 function editTask(event){
@@ -72,17 +100,17 @@ function editTask(event){
     const listEl = event.target;
     if (listEl.tagName !== 'LI') return
     // const positionInList = listStorage[listEl.closest('section').id].indexOf(listEl.textContent)
-
+    
     // I switch the list element with a input
     const temporaryInput = createListElement('input', listEl.textContent, 'task')
     listEl.parentNode.replaceChild(temporaryInput, listEl);
     temporaryInput.focus()
-
+    
     // When I leave the input it changes back to the list Element
     temporaryInput.onblur = () => {
         // update the text content of the list element (can't be left empty)
         listEl.textContent = temporaryInput.value ? temporaryInput.value:listEl.textContent
-
+        
         // switch the input for the listelement
         temporaryInput.parentNode.replaceChild(listEl, temporaryInput);
         
@@ -92,13 +120,13 @@ function editTask(event){
         listStorage[listEl.closest('section').id][positionInList] = listEl.textContent
         localStorage.setItem('tasks', JSON.stringify(listStorage))
     }
-
+    
 }
 
 // This function saves the list element I'm hovering over to the DOM
 function hovering(event) {
     if (event.target.tagName !== 'LI') return
-
+    
     // The event target is saved in the DOM
     tasksContainer.hoveringOver = event.target
     
@@ -121,36 +149,36 @@ function altKey(event) {
 
 function taskLocationChange(event) {
     const hoveringOver = tasksContainer.hoveringOver
-
+    
     // the event only performs a task for keys 1, 2, 3.
     // And only if the mouse is hovering over a list element.
     if (['1', '2', '3'].indexOf(event.key) === -1 || !hoveringOver) return
-
+    
     // chooses a DOM list to transfer to based on the key that was pressed
     const lists = ['todo', 'in-progress', 'done']
     const list = tasksContainer.querySelector(`#${lists[event.key-1]} > ul`)
-
+    
     // if the element is already inside the list the function does nothing.
     if (list.contains(hoveringOver)) return
-
+    
     setLocalStorage(hoveringOver, lists[event.key-1])
-
+    
     // change the DOM
     hoveringOver.remove()
     list.prepend(hoveringOver)
-   
-
+    
+    
 }
 
 function searchFilter() {
-
+    
     let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
-
+    
     // I unhide all the elements so they do stay hidden from the search before
     for (let list of taskLists) {
         [...list.children].forEach(elem => elem.hidden = false)
     }
-
+    
     // I hide all the elements that do not contain the text in the search bar
     for (let list of taskLists) {
         [...list.children].forEach(elem => {
@@ -161,23 +189,24 @@ function searchFilter() {
     }
 }
 
+
 function createListElement(tagname, text, cls) {
-  const newListItem = document.createElement(tagname)
-  if (tagname === 'input') {
-      newListItem.value = text
+    const newListItem = document.createElement(tagname)
+    if (tagname === 'input') {
+        newListItem.value = text
     } else {
-      newListItem.append(text)
-      //   newListItem.textContent = text
-  }
-  newListItem.classList.add(cls)
-  return newListItem
+        newListItem.append(text)
+        //   newListItem.textContent = text
+    }
+    newListItem.classList.add(cls)
+    return newListItem
 }
 
 function setLocalStorage(element, to) {
-
+    
     // finds the position in list using its placement in the DOM
     const positionInList = [...element.parentNode.children].indexOf(element)
-
+    
     listStorage[element.closest('section').id].splice(positionInList, 1);
     listStorage[to].unshift(element.textContent)
     localStorage.setItem('tasks', JSON.stringify(listStorage))
