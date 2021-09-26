@@ -1,7 +1,8 @@
 'use strict'
 
-// global shorthand for DOM Element I reference through out my code.
+// global shorthand for DOM Elements I reference through out my code.
 const tasksContainer = document.getElementById('tasks-container')
+const spinner = createListElement('div', '', 'loader')
 
 // I initialize a global storage object
 let listStorage = {
@@ -10,7 +11,7 @@ let listStorage = {
   done: [],
 }
 
-getTasksFromLocalStorage()
+buildingDOMFromLocalStorage()
 
 /* DOM Events */
 tasksContainer.onclick = addTask
@@ -31,6 +32,9 @@ function loadOrSave(event) {
 }
 
 async function saveData() {
+  // Added spiner so the user sees that API is currently saving their data.
+  tasksContainer.append(spinner)
+
   const saveResponse = await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc', {
     method: 'PUT',
     headers: {
@@ -39,20 +43,32 @@ async function saveData() {
   },
   body: JSON.stringify({ tasks: listStorage }),
 })
+
+spinner.remove()
+
+// tells the user the API failed to save their data
+if (!saveResponse.ok) {
+  alert(`Your information could not be save. Network Response: ${saveResponse.status}`)
+}
 }
 
 async function loadData() {
   // created a spinner element and added it to task container
-  const spinner = createListElement('div', '', 'loader')
   tasksContainer.append(spinner)
 
   // fetch the data from the API and update the Local storage
-  const load = await fetch(
+  const loadResponse = await fetch(
     'https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc'
   )
-  const { tasks } = await load.json()
+  const { tasks } = await loadResponse.json()
   listStorage = tasks
   localStorage.setItem('tasks', JSON.stringify(listStorage))
+
+  // if information can not be taken from API I return out of the function
+  if (!loadResponse.ok) {
+    alert(`Your information could not be loaded. Network Response: ${loadResponse.status}`)
+    return
+  }
 
   // remove all elements from lists and build them according to the loaded data
   let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
@@ -61,11 +77,11 @@ async function loadData() {
   }
 
   spinner.remove()
-  getTasksFromLocalStorage()
+  buildingDOMFromLocalStorage()
 }
 
 /* Local Storage Building DOM*/
-function getTasksFromLocalStorage() {
+function buildingDOMFromLocalStorage() {
   const localStorageLists = localStorage.getItem('tasks')
 
   if (localStorageLists) {
