@@ -32,8 +32,13 @@ async function saveData() {
   await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc', {
     method: 'PUT',
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+    //   Accept: 'application/json',
+    //   'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Headers':
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
     },
     body: JSON.stringify({ tasks: listStorage }),
   })
@@ -41,7 +46,7 @@ async function saveData() {
 
 async function loadData() {
   // created a spinner element and added it to task container
-  const spinner = createListElement('div', '', 'result-loading')
+  const spinner = createListElement('div', '', 'loader')
   tasksContainer.append(spinner)
 
   // fetch the data from the API and update the Local storage
@@ -82,11 +87,11 @@ function getTasksFromLocalStorage() {
 function addTask(event) {
   // one click event works on all three buttons and only on buttons
   const button = event.target
-  if (button.tagName !== 'BUTTON') return
+  if (button.className !== 'bottom-btn') return
 
   // gets the section and input that are relavent to the button
   const section = button.closest('section')
-  const input = document.querySelector(`#${section.id} > input`)
+  const input = document.querySelector(`#${section.id} > .bottom-of-section > .bottom-input`)
 
   // I don't allow the user to enter an empt input
   if (!input.value) {
@@ -186,12 +191,12 @@ function searchFilter() {
 
   // I unhide all the elements so they do stay hidden from the search before
   for (let list of taskLists) {
-    ;[...list.children].forEach((elem) => (elem.hidden = false))
+    [...list.children].forEach((elem) => (elem.hidden = false))
   }
 
   // I hide all the elements that do not contain the text in the search bar
   for (let list of taskLists) {
-    ;[...list.children].forEach((elem) => {
+    [...list.children].forEach((elem) => {
       if (!elem.textContent.includes(search.value.toLowerCase())) {
         elem.hidden = true
       }

@@ -1,7 +1,47 @@
+/* effects the whole page */
 body {
   margin: 0;
+  background-image: url(https://i.stack.imgur.com/jGlzr.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  overflow-x: hidden;
+  overflow-y: visible;
+  color: rgb(64, 64, 64);
 }
+
+body::-webkit-scrollbar {
+  width: 9px;
+}
+
+body::-webkit-scrollbar-track {
+  background: cornsilk;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: burlywood;
+  border-radius: 20px;
+  border: 2px outset cornsilk;
+}
+
+::selection {
+  background: burlywood;
+}
+
+button {
+  cursor: pointer;
+}
+
+input {
+  color: brown;
+}
+
+/* effects specifically  the elements in the header */
 header {
+  background-image: url(https://textures.world/wp-content/uploads/2018/10/Walnut-Wood-Seamless-Background-Texture-20.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   display: flex;
   position: sticky;
   top: 0;
@@ -10,50 +50,135 @@ header {
   justify-content: flex-end;
   align-items: center;
   border-bottom: solid 4px cornsilk;
-  /* height: 15% */
+  z-index: 2;
 }
+
 #page-title {
+  font-size: 3vw;
   margin-right: auto;
+  color: burlywood;
+  margin-left: 5vw;
+  cursor: default;
 }
-#submit-add-to-do {
-    position: sticky;
-    bottom: 3vh;
-    background-color: crimson;
+
+#search {
+  background-color: burlywood;
+  width: 30vw;
+  font-size: 1.5vw;
+  outline: none;
+  margin-right: 3vw;
+  border-color: cornsilk;
+  border-radius: 10px;
+  color: rgb(64, 64, 64);
+  color: brown;
+  padding-left: 0.5vw;
 }
+
+#btnContainer {
+  margin-right: 2.5vw;
+  display: flex;
+  width: 10vw;
+  justify-content: space-between;
+}
+
+#btnContainer button {
+  background-color: burlywood;
+  border-color: cornsilk;
+  font-size: 1.5vw;
+  border-radius: 10px;
+  color: brown;
+}
+
+#btnContainer button:hover {
+  background-color: cornsilk;
+  border-color: burlywood;
+}
+
+/* effects elements in the tasks-container */
 #tasks-container {
-  /* margin-top: 10%; */
-  /* padding-top: 15%; */
-  /* width: 100%; */
   display: flex;
   justify-content: space-evenly;
 }
+#tasks-container h2 {
+  color: cornsilk;
+  text-align: center;
+  font-size: 2.5vw;
+  cursor: default;
+}
 #tasks-container section {
   width: 26.66vw;
+  margin-bottom: 3vw;
 }
-#tasks-container h2 {
-text-align: center;
+
+#tasks-container section .bottom-of-section {
+  display: flex;
+  position: sticky;
+  bottom: 2.5vh;
+  justify-content: space-between;
 }
+
 #tasks-container section ul {
-    padding-inline-start: 0;
+  padding-inline-start: 0;
 }
+
 .task {
-  /* height: 300px; */
-  width: 100%;
-  padding-inline-start: 0px;
-  padding-left: 0 !important;
+  margin-bottom: 0.5vw;
+  background-color: rgba(255, 248, 220, 0.5);
+  font-size: 2vw;
+  width: 96%;
+  padding-inline-start: 2%;
   list-style-type: none;
   word-wrap: break-word;
+  border-radius: 10px;
+  outline: none;
+  border-style: none;
+  cursor: pointer;
+  padding-inline-end: 2%;
+  word-break: break-word;
 }
-.result-loading {
+
+.task:hover {
+  background-color: rgba(255, 248, 220, 0.8);
+}
+
+.bottom-btn {
+  background-color: cornsilk;
+  border-color: burlywood;
+  width: 5vw;
+  width: 20%;
+  font-size: 1.5vw;
+  border-radius: 10px;
+  color: brown;
+}
+
+.bottom-btn:hover {
+  background-color: burlywood;
+  border-color: cornsilk;
+}
+
+.bottom-input {
+  background-color: cornsilk;
+  border-color: burlywood;
+  width: 72.75%;
+  font-size: 1.5vw;
+  border-radius: 10px;
+  z-index: 1;
+  outline: none;
+  padding-inline-start: 2%;
+}
+
+/* spinner element */
+.loader {
   position: fixed;
   top: calc(50% - 60px);
   left: calc(50% - 60px);
-  border: 16px solid #f3f3f3;
+  border: 16px solid rgba(255, 248, 220, 0.7);
   border-radius: 50%;
-  border-top: 16px solid rgb(0, 189, 25);
+  border-top: 16px solid brown;
   width: 120px;
   height: 120px;
   animation: spin 1s linear infinite;
+  z-index: 3;
 }
 @keyframes spin {
   0% {
@@ -63,3 +188,7 @@ text-align: center;
     transform: rotate(360deg);
   }
 }
+
+/* #save-btn:focus {
+  background-color: brown;
+} */
