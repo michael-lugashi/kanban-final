@@ -20,6 +20,8 @@ document.addEventListener('keydown', altKey)
 document.addEventListener('keyup', altKey)
 search.oninput = searchFilter
 btnContainer.onclick = loadOrSave
+tasksContainer.addEventListener('click', focusedInputField)
+document.addEventListener('keydown', enteringTask)
 // tasksContainer.onmousedown = dragAndDropTask
 
 /* API Load and Save Data */
@@ -29,19 +31,14 @@ function loadOrSave(event) {
 }
 
 async function saveData() {
-  await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc', {
+  const saveResponse = await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc', {
     method: 'PUT',
     headers: {
-    //   Accept: 'application/json',
-    //   'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Headers':
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-    },
-    body: JSON.stringify({ tasks: listStorage }),
-  })
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ tasks: listStorage }),
+})
 }
 
 async function loadData() {
@@ -62,6 +59,7 @@ async function loadData() {
   for (let list of taskLists) {
     ;[...list.children].forEach((elem) => elem.remove())
   }
+
   spinner.remove()
   getTasksFromLocalStorage()
 }
@@ -109,6 +107,9 @@ function addTask(event) {
 
   // I clear the input
   input.value = ''
+
+  // I focus on the input field so the user can continuously type more tasks
+  input.focus()
 }
 
 function editTask(event) {
@@ -202,6 +203,24 @@ function searchFilter() {
       }
     })
   }
+}
+
+// The two functions bellow are so the use can continously enter tasks pressing the enter
+function focusedInputField(event) {
+  if (event.target.className !== 'bottom-input') return
+
+  // I get the input elem and it's adjacent button elem.
+  tasksContainer.enteringInput = event.target
+  const containerOfButton = event.target.closest('.bottom-of-section')
+  tasksContainer.enteringBtn = containerOfButton.querySelector('.bottom-btn')
+}
+
+function enteringTask(event) {
+  // This function won't run unless the user is currently focused on an input field and you press enter.
+  if (event.code !== 'Enter' || tasksContainer.enteringInput !== document.activeElement) return
+
+  // I click the add button adjacent to the focused input field.
+  tasksContainer.enteringBtn.click()
 }
 
 function createListElement(tagname, text, cls) {
