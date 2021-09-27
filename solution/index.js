@@ -293,7 +293,7 @@ function createElem(tagname, contents, cls) {
 // replace all ".textContent" with ".childNodes[1].nodeValue", There are six in the document not including this one
 function createListElement(tagname, contents, cls) {
   const removeTask = createElem('span', ['X'], 'remove-task')
-  return createElem(tagname, [removeTask, contents], cls)
+  return createElem(tagname, [contents], cls)
 }
 
 function setLocalStorage(element, to) {

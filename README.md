@@ -1,5 +1,3 @@
-./solution/index.html
-
 # Cyber4s 3rd Pre-Course Final Project
 # Michael Lugashi
 
