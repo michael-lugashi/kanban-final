@@ -13,7 +13,7 @@ let listStorage = {
 
 buildingDOMFromLocalStorage()
 
-/* DOM Events */
+/* DOM Events- this page layout is in the order of the DOM events listed below*/
 // In the event below I have a really useful remove function that allows you to remove tasks
 // because it prevents the code from passing the test it's not active in my code, but for all practical purposes 
 // the tests would pass. All the functions would still work, it just adds a permenant span inside my Tasks that messes 
@@ -33,6 +33,163 @@ tasksContainer.addEventListener('click', focusedInputField)
 
 // For Adding a task by pressing enter instead of clicking the Add button
 document.addEventListener('keydown', enteringTask)
+
+
+/* Local Storage Building DOM*/
+function buildingDOMFromLocalStorage() {
+  const localStorageLists = localStorage.getItem('tasks')
+  
+  if (localStorageLists) {
+    // I make the storage object equal to local storage if local storage has values
+    listStorage = JSON.parse(localStorageLists)
+    
+    // I place all the data from local storage into the DOM
+    for (const list in listStorage) {
+      const currentList = tasksContainer.querySelector(`#${list} > ul`)
+      listStorage[list].forEach((listItemText) => {
+        currentList.append(createListElement('li', listItemText, ['task'], {}))
+      })
+    }
+  }
+}
+
+function addOrDeleteTask(event) {
+  // one click event works on all three buttons and only on buttons
+  const button = event.target
+  if (button.className === 'remove-task') taskRemover(button)
+
+  if (button.className !== 'bottom-btn') return
+  // The rest is for adding a task
+
+  // gets the section and input that are relavent to the button
+  const section = button.closest('section')
+  const input = document.querySelector(
+    `#${section.id} > .bottom-of-section > .bottom-input`
+  )
+  
+  // I don't allow the user to enter an empt input
+  if (!input.value) {
+    alert(`You can't submit an empty task`)
+    return
+  }
+
+  // I select the list within the section and append a list element
+  const list = document.querySelector(`#${section.id} > ul`)
+  list.prepend(createListElement('li', input.value, ['task'], {}))
+  
+  // I update the local storage
+  listStorage[section.id].unshift(input.value)
+  localStorage.setItem('tasks', JSON.stringify(listStorage))
+  
+  // I clear the input
+  input.value = ''
+  
+  // I focus on the input field so the user can continuously type more tasks
+  input.focus()
+}
+
+function taskRemover(remover){
+  const taskRemoved = remover.closest('.task')
+  
+  // update Local Storage
+  const positionInList = [...taskRemoved.parentNode.children].indexOf(taskRemoved)
+  listStorage[taskRemoved.closest('section').id].splice(positionInList, 1)
+  localStorage.setItem('tasks', JSON.stringify(listStorage))
+  
+  taskRemoved.remove()
+  
+}
+
+function editTask(event) {
+  // function only effects list elements
+  const listEl = event.target
+  if (listEl.tagName !== 'LI') return
+  
+  // I get the list text without including my task remover
+  const listElText = listEl.textContent
+  
+  // I switch the list element with a input
+  const temporaryInput = createElem('input', [listElText], 'task')
+  listEl.parentNode.replaceChild(temporaryInput, listEl)
+  temporaryInput.focus()
+  
+  // When I leave the input it changes back to the list Element
+  temporaryInput.onblur = () => {
+    // update the text content of the list element (can't be left empty)
+    listEl.textContent = temporaryInput.value
+    ? temporaryInput.value
+      : listEl.textContent
+      
+    temporaryInput.parentNode.replaceChild(listEl, temporaryInput)
+
+    // update the local storage
+    // I find the index of listEl in the Dom, and use it to find where it is in my listStorage
+    const positionInList = [...listEl.parentNode.children].indexOf(listEl)
+    listStorage[listEl.closest('section').id][positionInList] =
+    listEl.textContent
+    localStorage.setItem('tasks', JSON.stringify(listStorage))
+  }
+}
+
+// This function saves the list element I'm hovering over to the DOM
+function listELHoveringOver(event) {
+  if (!event.target.closest('.task')) return
+  tasksContainer.hoveringOver = event.target
+  
+  event.target.onmouseout = () => {
+    tasksContainer.hoveringOver = null
+  }
+}
+
+function altKey(event) {
+  if (event.key !== 'Alt') return
+  if (event.type === 'keydown') {
+    event.preventDefault()
+    document.addEventListener('keydown', taskLocationChange)
+  }
+  if (event.type === 'keyup') {
+    document.removeEventListener('keydown', taskLocationChange)
+  }
+}
+
+function taskLocationChange(event) {
+  const hoveringOver = tasksContainer.hoveringOver
+  
+  // the event only performs a task for keys 1, 2, 3.
+  // And only if the mouse is hovering over a list element.
+  if (['1', '2', '3'].indexOf(event.key) === -1 || !hoveringOver) return
+  
+  // chooses a DOM list to transfer to based on the key that was pressed
+  const lists = ['todo', 'in-progress', 'done']
+  const list = tasksContainer.querySelector(`#${lists[event.key - 1]} > ul`)
+  
+  // if the element is already inside the list the function does nothing.
+  if (list.contains(hoveringOver)) return
+  
+  setLocalStorage(hoveringOver, lists[event.key - 1])
+  
+  // change the DOM
+  hoveringOver.remove()
+  list.prepend(hoveringOver)
+}
+
+function searchFilter() {
+  let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
+  
+  // I unhide all the elements so they do stay hidden from the search before
+  for (let list of taskLists) {
+    ;[...list.children].forEach((elem) => (elem.hidden = false))
+  }
+  
+  // I hide all the elements that do not contain the text in the search bar
+  for (let list of taskLists) {
+    ;[...list.children].forEach((elem) => {
+      if (!elem.textContent.includes(search.value.toLowerCase())) {
+        elem.hidden = true
+      }
+    })
+  }
+}
 
 /* API Load and Save Data */
 function loadOrSave(event) {
@@ -95,163 +252,6 @@ async function loadData() {
   spinner.remove()
   buildingDOMFromLocalStorage()
 }
-
-/* Local Storage Building DOM*/
-function buildingDOMFromLocalStorage() {
-  const localStorageLists = localStorage.getItem('tasks')
-
-  if (localStorageLists) {
-    // I make the storage object equal to local storage if local storage has values
-    listStorage = JSON.parse(localStorageLists)
-
-    // I place all the data from local storage into the DOM
-    for (const list in listStorage) {
-      const currentList = tasksContainer.querySelector(`#${list} > ul`)
-      listStorage[list].forEach((listItemText) => {
-        currentList.append(createListElement('li', listItemText, ['task'], {}))
-      })
-    }
-  }
-}
-
-function addOrDeleteTask(event) {
-  // one click event works on all three buttons and only on buttons
-  const button = event.target
-  if (button.className === 'remove-task') taskRemover(button)
-
-  if (button.className !== 'bottom-btn') return
-  // The rest is for adding a task
-
-  // gets the section and input that are relavent to the button
-  const section = button.closest('section')
-  const input = document.querySelector(
-    `#${section.id} > .bottom-of-section > .bottom-input`
-  )
-
-  // I don't allow the user to enter an empt input
-  if (!input.value) {
-    alert(`You can't submit an empty task`)
-    return
-  }
-
-  // I select the list within the section and append a list element
-  const list = document.querySelector(`#${section.id} > ul`)
-  list.prepend(createListElement('li', input.value, ['task'], {}))
-
-  // I update the local storage
-  listStorage[section.id].unshift(input.value)
-  localStorage.setItem('tasks', JSON.stringify(listStorage))
-
-  // I clear the input
-  input.value = ''
-
-  // I focus on the input field so the user can continuously type more tasks
-  input.focus()
-}
-
-function taskRemover(remover){
-  const taskRemoved = remover.closest('.task')
-
-  // update Local Storage
-  const positionInList = [...taskRemoved.parentNode.children].indexOf(taskRemoved)
-  listStorage[taskRemoved.closest('section').id].splice(positionInList, 1)
-  localStorage.setItem('tasks', JSON.stringify(listStorage))
-
-  taskRemoved.remove()
-
-}
-
-function editTask(event) {
-  // function only effects list elements
-  const listEl = event.target
-  if (listEl.tagName !== 'LI') return
-
-  // I get the list text without including my task remover
-  const listElText = listEl.textContent
-
-  // I switch the list element with a input
-  const temporaryInput = createElem('input', [listElText], 'task')
-  listEl.parentNode.replaceChild(temporaryInput, listEl)
-  temporaryInput.focus()
-
-  // When I leave the input it changes back to the list Element
-  temporaryInput.onblur = () => {
-    // update the text content of the list element (can't be left empty)
-    listEl.textContent = temporaryInput.value
-      ? temporaryInput.value
-      : listEl.textContent
-
-    temporaryInput.parentNode.replaceChild(listEl, temporaryInput)
-
-    // update the local storage
-    // I find the index of listEl in the Dom, and use it to find where it is in my listStorage
-    const positionInList = [...listEl.parentNode.children].indexOf(listEl)
-    listStorage[listEl.closest('section').id][positionInList] =
-      listEl.textContent
-    localStorage.setItem('tasks', JSON.stringify(listStorage))
-  }
-}
-
-// This function saves the list element I'm hovering over to the DOM
-function listELHoveringOver(event) {
-  if (!event.target.closest('.task')) return
-  tasksContainer.hoveringOver = event.target
-
-  event.target.onmouseout = () => {
-    tasksContainer.hoveringOver = null
-  }
-}
-
-function altKey(event) {
-  if (event.key !== 'Alt') return
-  if (event.type === 'keydown') {
-    event.preventDefault()
-    document.addEventListener('keydown', taskLocationChange)
-  }
-  if (event.type === 'keyup') {
-    document.removeEventListener('keydown', taskLocationChange)
-  }
-}
-
-function taskLocationChange(event) {
-  const hoveringOver = tasksContainer.hoveringOver
-
-  // the event only performs a task for keys 1, 2, 3.
-  // And only if the mouse is hovering over a list element.
-  if (['1', '2', '3'].indexOf(event.key) === -1 || !hoveringOver) return
-
-  // chooses a DOM list to transfer to based on the key that was pressed
-  const lists = ['todo', 'in-progress', 'done']
-  const list = tasksContainer.querySelector(`#${lists[event.key - 1]} > ul`)
-
-  // if the element is already inside the list the function does nothing.
-  if (list.contains(hoveringOver)) return
-
-  setLocalStorage(hoveringOver, lists[event.key - 1])
-
-  // change the DOM
-  hoveringOver.remove()
-  list.prepend(hoveringOver)
-}
-
-function searchFilter() {
-  let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
-
-  // I unhide all the elements so they do stay hidden from the search before
-  for (let list of taskLists) {
-    ;[...list.children].forEach((elem) => (elem.hidden = false))
-  }
-
-  // I hide all the elements that do not contain the text in the search bar
-  for (let list of taskLists) {
-    ;[...list.children].forEach((elem) => {
-      if (!elem.textContent.includes(search.value.toLowerCase())) {
-        elem.hidden = true
-      }
-    })
-  }
-}
-
 // The two functions bellow are so the use can continously enter tasks pressing the enter
 function focusedInputField(event) {
   if (event.target.className !== 'bottom-input') return
