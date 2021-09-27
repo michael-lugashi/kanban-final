@@ -289,11 +289,11 @@ function createElem(tagname, contents, cls) {
   return newElem
 }
 
-// To view my remove Task feature replace "[contents]" with "[remove Task, contents]"
+// To view my remove Task feature replace "[contents]" with "[removeTask, contents]"
 // replace all ".textContent" with ".childNodes[1].nodeValue", There are six in the document not including this one
 function createListElement(tagname, contents, cls) {
   const removeTask = createElem('span', ['X'], 'remove-task')
-  return createElem(tagname, [contents], cls)
+  return createElem(tagname, [removeTask, contents], cls)
 }
 
 function setLocalStorage(element, to) {
@@ -301,6 +301,6 @@ function setLocalStorage(element, to) {
   const positionInList = [...element.parentNode.children].indexOf(element)
 
   listStorage[element.closest('section').id].splice(positionInList, 1)
-  listStorage[to].unshift(element.childNodes[0].nodeValue)
+  listStorage[to].unshift(element.textContent)
   localStorage.setItem('tasks', JSON.stringify(listStorage))
 }

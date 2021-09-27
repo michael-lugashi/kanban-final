@@ -1,7 +1,7 @@
 /* effects the whole page */
 body {
   margin: 0;
-  background-image: url(https://i.stack.imgur.com/jGlzr.png);
+  background-image: url(../images/background-image-wood.png);
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
@@ -38,7 +38,7 @@ input {
 
 /* effects specifically  the elements in the header */
 header {
-  background-image: url(https://textures.world/wp-content/uploads/2018/10/Walnut-Wood-Seamless-Background-Texture-20.jpg);
+  background-image: url(../images/header-dark-wood.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
