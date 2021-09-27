@@ -141,6 +141,16 @@ header {
   background-color: rgba(255, 248, 220, 0.8);
 }
 
+.remove-task {
+    color: brown;
+    display: flex;
+    float: right;
+    display: none;
+}
+.task:hover .remove-task {
+    display: block;
+}
+
 .bottom-btn {
   background-color: cornsilk;
   border-color: burlywood;
