@@ -1,13 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="./index.js" defer></script>
     <link rel="stylesheet" href="./styles.css" />
     <title>Tasks manager</title>
-</head>
-<body>
-</body>
+  </head>
+  <body>
+    <header>
+      <h1 id="page-title">Task Manager</h1>
+      <input id="search" type="text" placeholder="Search..." />
+      <div id="btnContainer">
+        <button id="load-btn">Load</button>
+        <button id="save-btn">Save</button>
+      </div>
+    </header>
+
+    <div id="tasks-container">
+      <section id="todo">
+        <h2>To Do</h2>
+        <ul class="to-do-tasks"></ul>
+        <footer class="bottom-of-section">
+          <input type="text" id="add-to-do-task" class="bottom-input" />
+          <button id="submit-add-to-do" class="bottom-btn">Add</button>
+        </footer>
+      </section>
+
+      <section id="in-progress">
+        <h2>In Progress</h2>
+        <ul class="in-progress-tasks"></ul>
+        <footer class="bottom-of-section">
+          <input type="text" id="add-in-progress-task" class="bottom-input" />
+          <button id="submit-add-in-progress" class="bottom-btn">Add</button>
+        </footer>
+      </section>
+
+      <section id="done">
+        <h2>Completed</h2>
+        <ul class="done-tasks"></ul>
+        <footer class="bottom-of-section">
+          <input type="text" id="add-done-task" class="bottom-input" />
+          <button id="submit-add-done" class="bottom-btn">Add</button>
+        </footer>
+      </section>
+    </div>
+  </body>
 </html>
