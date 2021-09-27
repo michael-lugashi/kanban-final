@@ -2,7 +2,7 @@
 
 // global shorthand for DOM Elements I reference through out my code.
 const tasksContainer = document.getElementById('tasks-container')
-const spinner = createElem('div', [], ['loader'], {})
+const spinner = createElem('div', [], 'loader')
 
 // I initialize a global storage object
 let listStorage = {
@@ -14,16 +14,25 @@ let listStorage = {
 buildingDOMFromLocalStorage()
 
 /* DOM Events */
+// In the event below I have a really useful remove function that allows you to remove tasks
+// because it prevents the code from passing the test it's not active in my code, but for all practical purposes 
+// the tests would pass. All the functions would still work, it just adds a permenant span inside my Tasks that messes 
+// with the test results. If you wanna check it out there are instructions over the createListElement Function and in the ReadME.
 tasksContainer.onclick = addOrDeleteTask
+
 tasksContainer.ondblclick = editTask
+
+// These three events are for the Alt Commands
 tasksContainer.onmouseover = listELHoveringOver
 document.addEventListener('keydown', altKey)
 document.addEventListener('keyup', altKey)
+
 search.oninput = searchFilter
 btnContainer.onclick = loadOrSave
 tasksContainer.addEventListener('click', focusedInputField)
+
+// For Adding a task by pressing enter instead of clicking the Add button
 document.addEventListener('keydown', enteringTask)
-// tasksContainer.onmousedown = dragAndDropTask
 
 /* API Load and Save Data */
 function loadOrSave(event) {
@@ -111,6 +120,7 @@ function addOrDeleteTask(event) {
   if (button.className === 'remove-task') taskRemover(button)
 
   if (button.className !== 'bottom-btn') return
+  // The rest is for adding a task
 
   // gets the section and input that are relavent to the button
   const section = button.closest('section')
@@ -157,24 +167,19 @@ function editTask(event) {
   if (listEl.tagName !== 'LI') return
 
   // I get the list text without including my task remover
-  const listElText = listEl.childNodes[1].nodeValue
+  const listElText = listEl.textContent
 
   // I switch the list element with a input
-  const temporaryInput = createElem(
-    'input',
-    [listElText],
-    ['task'],
-    {}
-  )
+  const temporaryInput = createElem('input', [listElText], 'task')
   listEl.parentNode.replaceChild(temporaryInput, listEl)
   temporaryInput.focus()
 
   // When I leave the input it changes back to the list Element
   temporaryInput.onblur = () => {
     // update the text content of the list element (can't be left empty)
-    listEl.childNodes[1].nodeValue = temporaryInput.value
+    listEl.textContent = temporaryInput.value
       ? temporaryInput.value
-      : listEl.childNodes[1].nodeValue
+      : listEl.textContent
 
     temporaryInput.parentNode.replaceChild(listEl, temporaryInput)
 
@@ -182,22 +187,17 @@ function editTask(event) {
     // I find the index of listEl in the Dom, and use it to find where it is in my listStorage
     const positionInList = [...listEl.parentNode.children].indexOf(listEl)
     listStorage[listEl.closest('section').id][positionInList] =
-      listEl.childNodes[1].nodeValue
+      listEl.textContent
     localStorage.setItem('tasks', JSON.stringify(listStorage))
   }
 }
 
 // This function saves the list element I'm hovering over to the DOM
 function listELHoveringOver(event) {
-  if (event.target.tagName !== 'LI') return
-  const removeTask = event.target.children[0]
-  // removeTask.style.display = 'inline';
-  // The event target is saved in the DOM
+  if (!event.target.closest('.task')) return
   tasksContainer.hoveringOver = event.target
 
   event.target.onmouseout = () => {
-    // removeTask.style.display = 'none';
-    // The event target is no longer saved
     tasksContainer.hoveringOver = null
   }
 }
@@ -245,7 +245,7 @@ function searchFilter() {
   // I hide all the elements that do not contain the text in the search bar
   for (let list of taskLists) {
     ;[...list.children].forEach((elem) => {
-      if (!elem.childNodes[1].nodeValue.includes(search.value.toLowerCase())) {
+      if (!elem.textContent.includes(search.value.toLowerCase())) {
         elem.hidden = true
       }
     })
@@ -274,7 +274,7 @@ function enteringTask(event) {
   tasksContainer.enteringBtn.click()
 }
 
-function createElem(tagname, contents, classes, hidden) {
+function createElem(tagname, contents, cls) {
   const newElem = document.createElement(tagname)
   if (tagname === 'input') {
     newElem.value = contents
@@ -283,16 +283,17 @@ function createElem(tagname, contents, classes, hidden) {
       newElem.append(content)
     }
   }
-  for (const cls of classes) {
-    newElem.classList.add(cls)
-  }
+    
+  newElem.classList.add(cls)
 
   return newElem
 }
 
-function createListElement(tagname, contents, classes, hidden) {
-  const removeTask = createElem('span', ['X'], ['remove-task'], true)
-  return createElem(tagname, [removeTask, contents], classes, hidden)
+// To view my remove Task feature replace "[contents]" with "[remove Task, contents]"
+// replace all ".textContent" with ".childNodes[1].nodeValue", There are six in the document not including this one
+function createListElement(tagname, contents, cls) {
+  const removeTask = createElem('span', ['X'], 'remove-task')
+  return createElem(tagname, [contents], cls)
 }
 
 function setLocalStorage(element, to) {
@@ -300,6 +301,6 @@ function setLocalStorage(element, to) {
   const positionInList = [...element.parentNode.children].indexOf(element)
 
   listStorage[element.closest('section').id].splice(positionInList, 1)
-  listStorage[to].unshift(element.childNodes[1].nodeValue)
+  listStorage[to].unshift(element.childNodes[0].nodeValue)
   localStorage.setItem('tasks', JSON.stringify(listStorage))
 }

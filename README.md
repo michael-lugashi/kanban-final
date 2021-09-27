@@ -1,122 +1,29 @@
 # Cyber4s 3rd Pre-Course Final Project
+# Michael Lugashi
 
-## What we will be building
 
-Welcome to your pre-course final project. You are going to build a task-management application.
+# JS Features
 
-![Example](./example.png)
+In this project I completed all the tests, including the bonuses. All the standard alt commands and searching work flawlessly. You can add tasks, and everthing is updated in the local storage. The load and save features are coupled with a loader animation. You can save and load data through the use of the API.
 
-## Instructions
+I added two extra features. The first was that instead of pressing the "Add" button to add a task, you coud simply press the enter key. This also brings your cursor back into the input field. This way you never have to take your hand off the key board to add lots tasks. After you initialy click on an input field you can just add the task by clicking enter, and continue typing to add another.
 
-1. Fork this repo into your account.
-2. Clone the forked repo to your computer.
-3. Run the [setup](#setup) script.
-4. Create a new git branch for your work.
-5. Complete the project [requirements](#requirements).
-6. Push your work to GitHub.
-7. [Submit](#submission) your work.
+The second extra feature I added was a remove button. When you hover over a task the remove feature appears at the upper right hand corner of the task. Instead of using JavaScript to make the remove feature appeare as an X when my mouse was over the task element I did it very elegantly in css. In two lines of code in css I made it so when I hovered over the parent element the child element would appear. In JavaScript I simply used delegation on my already existing click event and changed the name of my addTask function to addOrRemove task. If the event.target had the classname of my X I removed the task from the DOM and updated the local storage. Unfortanetly, because I added a span element into the li element for each task it interfeared with the tests. Instead of recieving "Task #1" The test woudld recieve my "X Task #1". Although it would not pass the tests with this feature for all practical purposes It does pass the tests. That is why I decided I'm going to shocase this feature in the video but submit it without this feature. If you guys want to see the is feature for yourselfs here are the intructions below:
 
-## Setup
+intructions: 
+1. Go to line 296 in index.js and replace "[contents]" with "[remove Task, contents]"
+2. replace all ".textContent" with ".childNodes[1].nodeValue", There are six in the document not including the commments.
 
-Execute `npm run final <your name>` (replace `<your name>` with your name). This command will install all the needed dependencies, and generate an [api-data.txt](#api-integration) file.
 
-## Requirements
+# CSS
 
-### Page Structure
+I gave my document a wood theme. I went into great detail altering the design of the scroll bar and changing the selection color of my page. My header and bottom inputs and buttons are 'sticky' so they never are out of site of the user. The user does not have to scroll to use the page features wether it be to search for a task or add one. When I hover over tasks or buttons they change color. I designed my spinner to go with the theme of the page. I alterd the cursor shape to only change on elements on the page you can interact with. My sizing adjust to look good on any computer screen. Overall I gave the webpage a very imersive feel.
 
-There should be 3 `section` elements. One for to-do tasks, one for in-progress tasks, and one for done tasks.
+Picture:
 
-Each `section` should contain:
 
-- [ ] a `ul` element with the appropriate class - `to-do-tasks`/`in-progress-tasks`/`done-tasks`
-- [ ] an `input` element with an appropriate id - `add-to-do-task`/`add-in-progress-task`/`add-done-task`
-- [ ] a `button` element with an appropriate id - `submit-add-to-do`/`submit-add-in-progress`/`submit-add-done`
-- [ ] Each `ul` should contain task elements, which are `li` elements with the `task` class.
 
-In addition the page should contain:
 
-- [ ] a heading with a `page-title` id
-- [ ] a global input with the `search` id
 
-### Interaction
 
-- [ ] When the user clicks on one of the add-task buttons, a new task will be added to the respective list. The task content will be taken from the respective input field.
-- [ ] Trying to submit empty tasks should cause an alert.
-- [ ] Double clicking a task element will enable the user to edit its text. When the task element loses focus (`blur` event) the change will be saved.
-- [ ] Hovering over a task element and pressing `alt + 1-3` will move the task to the appropriate list (`1`: todo, `2`: in-progress, `3`: done).
-- [ ] The search input should filter tasks case-**in**sensitively, so that only tasks that match the search string are displayed. The filter will be reapplied every time the user changes the content of the search input (on **every keystroke**).
-
-### Storage
-
-- [ ] The data of all the tasks should be saved to `localStorage` following any changes made to the data. The data should be saved under a storage key named `tasks`. It should be saved in the following format (use the data saved in the local storage to keep the data on the page after refresh):
-
-```json
-{
-  "todo": [],
-  "in-progress": [],
-  "done": []
-}
-```
-
-- [ ] Even if there are no tasks, there should still be a `tasks` key in the `localStorage`, in the above format (the arrays will just be empty).
-
-## Bonuses
-
-- [ ] Implement drag-and-drop sorting of tasks.
-- [ ] Add API integration:
-
-  - [ ] Add save and load buttons that sync the current tasks to the API (see details in the [api-data.txt](#api-integration) file).
-  - [ ] Remove the `.skip` from the two last tests in `main.test.js`.
-  - [ ] While waiting for a response from the API display a loader with the class `loader`.
-  - [ ] If an error occurs show an alert.
-  - [ ] If the data loaded from the API is different from the local data, replace the local data with the API data. Make sure you update both the `localStorage` and the DOM.
-
-- [ ] Add any additional cool features you can think of...
-
-## README
-
-You are expected to change the README of your project to showcase your application. Make it readable and explain what your app does. Put a screenshot and a link to GitHub pages.
-
-## Template
-
-You are provided with a template to write your code in, inside the `solution` folder. You should write your code inside `index.html`, `index.js`, `style.css`. You may create additional files for your convenience, but do not change the names of the existing ones.
-
-## API Integration
-
-Once you complete the [initial setup](#setup) you will see an `api-data.txt` file that was created in the project folder. This file will contain the URLs which you can access the API with, using a unique bin ID that was generated for you.
-
-The API is a simple remote storage that gives you a "bin" where you can store data. It allows you to save a chunk of data, or load it.
-
-## Testing
-
-We have added some automated tests for you to use. They will help you make sure your code covers the requirements.
-
-To run the tests, execute `npm run test`.
-
-## Grading
-
-Your work will be graded based on the following considerations:
-
-- The number of tests you pass
-- Readable and ordered code
-  - Spacing & indentation
-  - Indicative vairable/function names
-  - Comments (where necessary)
-- Proper use of Git
-  - Small, standalone commits
-  - Descriptive commit messages
-  - Working in branches and creating a proper PR
-- Convenient visual design (make your app b-e-a-utiful)
-- Extra features you might have added
-
-## Submission
-
-1. On GitHub, open a pull request from your branch to the main branch.
-2. **Do not merge the pull request!**
-3. Add the user `Cyber4sPopo` as collaborator to your repo.
-4. Deploy your application to GitHub pages.
-5. Submit in Google Classroom:
-   - a link to the pull request
-   - a link to your site on GitHub pages
-   - a 5 minutes min selfie video, where you talk about yourself in a few words (age, location, military background, technological background). Think about this video as a part of your interview.
-   - another 2-5 minute video where you talk about your submission solution, showing how your app works and any special features you added.
+Link to GitHub Pages:

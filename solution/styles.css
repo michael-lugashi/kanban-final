@@ -142,13 +142,14 @@ header {
 }
 
 .remove-task {
-    color: brown;
-    display: flex;
-    float: right;
-    display: none;
+  color: brown;
+  display: flex;
+  float: right;
+  display: none;
 }
+
 .task:hover .remove-task {
-    display: block;
+  display: block;
 }
 
 .bottom-btn {
