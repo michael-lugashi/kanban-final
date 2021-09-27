@@ -1,3 +1,5 @@
+./solution/index.html
+
 # Cyber4s 3rd Pre-Course Final Project
 # Michael Lugashi
 
@@ -20,7 +22,7 @@ intructions:
 I gave my document a wood theme. I went into great detail altering the design of the scroll bar and changing the selection color of my page. My header and bottom inputs and buttons are 'sticky' so they never are out of site of the user. The user does not have to scroll to use the page features wether it be to search for a task or add one. When I hover over tasks or buttons they change color. I designed my spinner to go with the theme of the page. I alterd the cursor shape to only change on elements on the page you can interact with. My sizing adjust to look good on any computer screen. Overall I gave the webpage a very imersive feel.
 
 
-Link to GitHub Pages:
+Link to GitHub Pages: https://michael-lugashi.github.io/kanban-final/
 
 Picture:
 ![Image Of Webpage](./images/image-of-webpage.png)
