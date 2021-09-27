@@ -106,7 +106,7 @@ function editTask(event) {
   if (listEl.tagName !== 'LI') return
   
   // I get the list text without including my task remover
-  const listElText = listEl.textContent
+  const listElText = listEl.childNodes[1].nodeValue
   
   // I switch the list element with a input
   const temporaryInput = createElem('input', [listElText], 'task')
@@ -116,9 +116,9 @@ function editTask(event) {
   // When I leave the input it changes back to the list Element
   temporaryInput.onblur = () => {
     // update the text content of the list element (can't be left empty)
-    listEl.textContent = temporaryInput.value
+    listEl.childNodes[1].nodeValue = temporaryInput.value
     ? temporaryInput.value
-      : listEl.textContent
+      : listEl.childNodes[1].nodeValue
       
     temporaryInput.parentNode.replaceChild(listEl, temporaryInput)
 
@@ -126,7 +126,7 @@ function editTask(event) {
     // I find the index of listEl in the Dom, and use it to find where it is in my listStorage
     const positionInList = [...listEl.parentNode.children].indexOf(listEl)
     listStorage[listEl.closest('section').id][positionInList] =
-    listEl.textContent
+    listEl.childNodes[1].nodeValue
     localStorage.setItem('tasks', JSON.stringify(listStorage))
   }
 }
@@ -184,7 +184,7 @@ function searchFilter() {
   // I hide all the elements that do not contain the text in the search bar
   for (let list of taskLists) {
     ;[...list.children].forEach((elem) => {
-      if (!elem.textContent.includes(search.value.toLowerCase())) {
+      if (!elem.childNodes[1].nodeValue.includes(search.value.toLowerCase())) {
         elem.hidden = true
       }
     })
@@ -293,7 +293,7 @@ function createElem(tagname, contents, cls) {
 // replace all ".textContent" with ".childNodes[1].nodeValue", There are six in the document not including this one
 function createListElement(tagname, contents, cls) {
   const removeTask = createElem('span', ['X'], 'remove-task')
-  return createElem(tagname, [contents], cls)
+  return createElem(tagname, [removeTask, contents], cls)
 }
 
 function setLocalStorage(element, to) {
@@ -301,6 +301,6 @@ function setLocalStorage(element, to) {
   const positionInList = [...element.parentNode.children].indexOf(element)
 
   listStorage[element.closest('section').id].splice(positionInList, 1)
-  listStorage[to].unshift(element.textContent)
+  listStorage[to].unshift(element.childNodes[1].nodeValue)
   localStorage.setItem('tasks', JSON.stringify(listStorage))
 }
