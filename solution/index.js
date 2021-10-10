@@ -11,13 +11,9 @@ let listStorage = {
   done: [],
 }
 
-buildingDOMFromLocalStorage()
+buildingDOMFromLocalStorage(localStorage.getItem('tasks'))
 
 /* DOM Events- this page layout is in the order of the DOM events listed below*/
-// In the event below I have a really useful remove function that allows you to remove tasks
-// because it prevents the code from passing the test it's not active in my code, but for all practical purposes 
-// the tests would pass. All the functions would still work, it just adds a permenant span inside my Tasks that messes 
-// with the test results. If you wanna check it out there are instructions over the createListElement Function and in the ReadME.
 tasksContainer.onclick = addOrDeleteTask
 
 tasksContainer.ondblclick = editTask
@@ -36,8 +32,7 @@ document.addEventListener('keydown', enteringTask)
 
 
 /* Local Storage Building DOM*/
-function buildingDOMFromLocalStorage() {
-  const localStorageLists = localStorage.getItem('tasks')
+function buildingDOMFromLocalStorage(localStorageLists) {
   
   if (localStorageLists) {
     // I make the storage object equal to local storage if local storage has values
@@ -54,32 +49,38 @@ function buildingDOMFromLocalStorage() {
 }
 
 function addOrDeleteTask(event) {
-  // one click event works on all three buttons and only on buttons
+  // delegates wether you add or delete a task
   const button = event.target
   if (button.className === 'remove-task') taskRemover(button)
+  if (button.className === 'bottom-btn') addTask(button)
+}
 
-  if (button.className !== 'bottom-btn') return
-  // The rest is for adding a task
+function taskRemover(remover){
+  const taskRemoved = remover.closest('.task')
+  taskRemoverLocalStorage([...taskRemoved.parentNode.children].indexOf(taskRemoved))
+  taskRemoved.remove()
+}
 
+function taskRemoverLocalStorage(positionInList) {
+  listStorage[taskRemoved.closest('section').id].splice(positionInList, 1)
+  localStorage.setItem('tasks', JSON.stringify(listStorage))
+}
+
+function addTask(button){
   // gets the section and input that are relavent to the button
   const section = button.closest('section')
-  const input = document.querySelector(
-    `#${section.id} > .bottom-of-section > .bottom-input`
-  )
+  const input = document.querySelector(`#${section.id} > .bottom-of-section > .bottom-input`)
   
   // I don't allow the user to enter an empt input
   if (!input.value) {
     alert(`You can't submit an empty task`)
     return
   }
-
-  // I select the list within the section and append a list element
-  const list = document.querySelector(`#${section.id} > ul`)
-  list.prepend(createListElement('li', input.value, ['task'], {}))
   
-  // I update the local storage
-  listStorage[section.id].unshift(input.value)
-  localStorage.setItem('tasks', JSON.stringify(listStorage))
+  // I select the list within the section and append a list element
+  addTaskDOM(document.querySelector(`#${section.id} > ul`), input.value)
+
+  addTaskLocalStorage(section.id, input.value)
   
   // I clear the input
   input.value = ''
@@ -88,16 +89,13 @@ function addOrDeleteTask(event) {
   input.focus()
 }
 
-function taskRemover(remover){
-  const taskRemoved = remover.closest('.task')
-  
-  // update Local Storage
-  const positionInList = [...taskRemoved.parentNode.children].indexOf(taskRemoved)
-  listStorage[taskRemoved.closest('section').id].splice(positionInList, 1)
+function addTaskDOM(list, text) {
+  list.prepend(createListElement('li', text, ['task'], {}))
+}
+
+function addTaskLocalStorage(list, text) {
+  listStorage[list].unshift(text)
   localStorage.setItem('tasks', JSON.stringify(listStorage))
-  
-  taskRemoved.remove()
-  
 }
 
 function editTask(event) {
@@ -105,30 +103,39 @@ function editTask(event) {
   const listEl = event.target
   if (listEl.tagName !== 'LI') return
   
-  // I get the list text without including my task remover
-  const listElText = listEl.textContent
+  // I get the list text
+  const listElText = listEl.childNodes[1].nodeValue
   
   // I switch the list element with a input
-  const temporaryInput = createElem('input', [listElText], 'task')
-  listEl.parentNode.replaceChild(temporaryInput, listEl)
-  temporaryInput.focus()
+  const input = temperaryInput(listEl, listElText)
+
   
   // When I leave the input it changes back to the list Element
-  temporaryInput.onblur = () => {
+  input.onblur = () => {
     // update the text content of the list element (can't be left empty)
-    listEl.textContent = temporaryInput.value
-    ? temporaryInput.value
-      : listEl.textContent
-      
-    temporaryInput.parentNode.replaceChild(listEl, temporaryInput)
-
+    listEl.childNodes[1].nodeValue = input.value
+    ? input.value
+    : listEl.childNodes[1].nodeValue
+    
+    input.parentNode.replaceChild(listEl, input)
+    
     // update the local storage
     // I find the index of listEl in the Dom, and use it to find where it is in my listStorage
-    const positionInList = [...listEl.parentNode.children].indexOf(listEl)
-    listStorage[listEl.closest('section').id][positionInList] =
-    listEl.textContent
-    localStorage.setItem('tasks', JSON.stringify(listStorage))
+    editTaskSetLocalStorage(listEl)
   }
+}
+function editTaskSetLocalStorage(listEl) {
+  const positionInList = [...listEl.parentNode.children].indexOf(listEl)
+  listStorage[listEl.closest('section').id][positionInList] =
+  listEl.childNodes[1].nodeValue
+  localStorage.setItem('tasks', JSON.stringify(listStorage))
+}
+
+function temperaryInput(listEl, listElText) {
+  const input = createElem('input', [listElText], 'task')
+  listEl.parentNode.replaceChild(input, listEl)
+  input.focus()
+  return input
 }
 
 // This function saves the list element I'm hovering over to the DOM
@@ -168,7 +175,10 @@ function taskLocationChange(event) {
   
   setLocalStorage(hoveringOver, lists[event.key - 1])
   
-  // change the DOM
+  taskLocationChangeDOM(hoveringOver, list)
+}
+
+function taskLocationChangeDOM(hoveringOver, list){
   hoveringOver.remove()
   list.prepend(hoveringOver)
 }
@@ -177,20 +187,25 @@ function searchFilter() {
   let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
   
   // I unhide all the elements so they do stay hidden from the search before
-  for (let list of taskLists) {
-    ;[...list.children].forEach((elem) => (elem.hidden = false))
-  }
+  showAllTasks(taskLists)
   
   // I hide all the elements that do not contain the text in the search bar
+  hideTasks(taskLists)
+}
+function showAllTasks(taskLists) {
+  for (let list of taskLists) {
+    [...list.children].forEach((elem) => (elem.hidden = false))
+  }
+}
+function hideTasks(taskLists) {
   for (let list of taskLists) {
     ;[...list.children].forEach((elem) => {
-      if (!elem.textContent.includes(search.value.toLowerCase())) {
+      if (!elem.childNodes[1].nodeValue.toLowerCase().includes(search.value.toLowerCase())) {
         elem.hidden = true
       }
     })
   }
 }
-
 /* API Load and Save Data */
 function loadOrSave(event) {
   if (event.target.id === 'load-btn') loadData()
@@ -200,9 +215,13 @@ function loadOrSave(event) {
 async function saveData() {
   // Added spiner so the user sees that API is currently saving their data.
   tasksContainer.append(spinner)
+  checkNetworkResponse(await save())
+  spinner.remove()
+}
 
-  const saveResponse = await fetch(
-    'https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc',
+async function save() {
+  return (
+    await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc',
     {
       method: 'PUT',
       headers: {
@@ -210,16 +229,13 @@ async function saveData() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ tasks: listStorage }),
-    }
+    })
   )
+}
 
-  spinner.remove()
-
-  // tells the user the API failed to save their data
-  if (!saveResponse.ok) {
-    alert(
-      `Your information could not be save. Network Response: ${saveResponse.status}`
-    )
+function checkNetworkResponse(response) {
+  if (!response.ok) {
+    alert(`Your information could not be saved Network Response: ${response.status}`)
   }
 }
 
@@ -227,15 +243,7 @@ async function loadData() {
   // created a spinner element and added it to task container
   tasksContainer.append(spinner)
 
-  // fetch the data from the API and update the Local storage
-  const loadResponse = await fetch(
-    'https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc'
-  )
-  const { tasks } = await loadResponse.json()
-  listStorage = tasks
-  localStorage.setItem('tasks', JSON.stringify(listStorage))
-
-  // if information can not be taken from API I return out of the function
+  const loadResponse = await load()
   if (!loadResponse.ok) {
     alert(
       `Your information could not be loaded. Network Response: ${loadResponse.status}`
@@ -243,14 +251,28 @@ async function loadData() {
     return
   }
 
+  loadSetLocalStorage(await loadResponse.json())
+
   // remove all elements from lists and build them according to the loaded data
+  clearDOMLists()
+  buildingDOMFromLocalStorage(localStorage.getItem('tasks'))
+  spinner.remove()
+}
+
+async function load() {
+  return await fetch('https://json-bins.herokuapp.com/bin/614b0f854021ac0e6c080cdc')
+}
+
+function loadSetLocalStorage({tasks}) {
+  listStorage = tasks
+  localStorage.setItem('tasks', JSON.stringify(listStorage))
+}
+
+function clearDOMLists() {
   let taskLists = document.querySelectorAll(`#tasks-container > section > ul`)
   for (let list of taskLists) {
     ;[...list.children].forEach((elem) => elem.remove())
   }
-
-  spinner.remove()
-  buildingDOMFromLocalStorage()
 }
 // The two functions bellow are so the use can continously enter tasks pressing the enter
 function focusedInputField(event) {
@@ -289,11 +311,9 @@ function createElem(tagname, contents, cls) {
   return newElem
 }
 
-// To view my remove Task feature replace "[contents]" with "[removeTask, contents]"
-// replace all ".textContent" with ".childNodes[1].nodeValue", There are six in the document not including this one
 function createListElement(tagname, contents, cls) {
   const removeTask = createElem('span', ['X'], 'remove-task')
-  return createElem(tagname, [contents], cls)
+  return createElem(tagname, [removeTask, contents], cls)
 }
 
 function setLocalStorage(element, to) {
@@ -301,6 +321,6 @@ function setLocalStorage(element, to) {
   const positionInList = [...element.parentNode.children].indexOf(element)
 
   listStorage[element.closest('section').id].splice(positionInList, 1)
-  listStorage[to].unshift(element.textContent)
+  listStorage[to].unshift(element.childNodes[1].nodeValue)
   localStorage.setItem('tasks', JSON.stringify(listStorage))
 }
